@@ -85,12 +85,14 @@ export function InputPanel({
 
   return (
     <div className="flex flex-col gap-5">
-      <Card className="border-border/60">
+      <Card className="border-border/60 bg-white/95 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2 text-base text-slate-800">
             <Wallet className="h-4 w-4 text-accent" /> Symbol & Tax setup
           </CardTitle>
-          <CardDescription>Pick a ticker, sync live data, and set your tax rate assumptions.</CardDescription>
+          <CardDescription className="text-slate-600">
+            Pick a ticker, sync live data, and set your tax rate assumptions.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3">
@@ -109,7 +111,7 @@ export function InputPanel({
                 }
               }}
             >
-              <SelectTrigger id="symbol">
+              <SelectTrigger id="symbol" className="bg-white">
                 <SelectValue placeholder="Choose a ticker" />
               </SelectTrigger>
               <SelectContent>
@@ -141,7 +143,7 @@ export function InputPanel({
           </div>
 
           <div className="grid gap-2">
-            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/70">
+            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/80">
               <span>Latest price</span>
               <div className="flex items-center gap-2">
                 {quote && <span className="font-semibold text-foreground">${quote.price.toFixed(2)}</span>}
@@ -203,12 +205,14 @@ export function InputPanel({
         </CardContent>
       </Card>
 
-      <Card className="border-border/60">
+      <Card className="border-border/60 bg-white/95 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2 text-base text-slate-800">
             <ShieldCheck className="h-4 w-4 text-accent" /> Position controls
           </CardTitle>
-          <CardDescription>Adjust your stock exposure and protective put contracts.</CardDescription>
+          <CardDescription className="text-slate-600">
+            Adjust your stock exposure and protective put contracts.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -309,16 +313,18 @@ export function InputPanel({
         </CardContent>
       </Card>
 
-      <Card className="border-border/60">
+      <Card className="border-border/60 bg-white/95 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2 text-base text-slate-800">
             <Thermometer className="h-4 w-4 text-accent" /> Scenario planning
           </CardTitle>
-          <CardDescription>Project future stock prices and track custom checkpoints.</CardDescription>
+          <CardDescription className="text-slate-600">
+            Project future stock prices and track custom checkpoints.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/70">
+            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/80">
               <span>Future price</span>
               <span className="text-sm font-semibold text-foreground">${state.futureStockPrice.toFixed(2)}</span>
             </div>

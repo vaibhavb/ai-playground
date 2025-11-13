@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-background text-foreground min-h-screen font-sans;
+  @apply min-h-screen bg-background text-foreground font-sans;
 }
 
 #root {

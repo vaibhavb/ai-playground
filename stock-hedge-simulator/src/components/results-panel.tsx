@@ -41,15 +41,15 @@ export function ResultsPanel({
 
   return (
     <div className="space-y-6">
-      <Card className="border-border/70">
+      <Card className="border-border/60 bg-white/95 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="flex items-center justify-between text-base">
+          <CardTitle className="flex items-center justify-between text-base text-slate-800">
             Hedge outcome at ${futurePrice.toFixed(2)}
             <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" disabled>
               Tax-adjusted view
             </Button>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-slate-600">
             Gross and after-tax P/L snapshots update instantly as you adjust the scenario dials.
           </CardDescription>
         </CardHeader>
@@ -59,7 +59,7 @@ export function ResultsPanel({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 120, damping: 16 }}
-            className="rounded-2xl border border-border/60 bg-card/60 p-5"
+            className="rounded-xl border border-border/70 bg-white p-5 shadow-sm"
           >
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>Net result</span>
@@ -82,7 +82,7 @@ export function ResultsPanel({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 120, damping: 16, delay: 0.05 }}
-            className="rounded-2xl border border-border/60 bg-card/60 p-5"
+            className="rounded-xl border border-border/70 bg-white p-5 shadow-sm"
           >
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>After-tax net</span>
@@ -155,14 +155,14 @@ type MetricCardProps = {
 };
 
 const toneClasses: Record<MetricCardProps['tone'], string> = {
-  positive: 'border-positive/30 bg-positive/10 text-positive',
-  negative: 'border-negative/30 bg-negative/10 text-negative',
-  neutral: 'border-border/60 bg-card/60 text-foreground',
+  positive: 'border border-positive/40 bg-positive/10 text-positive shadow-sm',
+  negative: 'border border-negative/40 bg-negative/10 text-negative shadow-sm',
+  neutral: 'border border-border/60 bg-white text-foreground shadow-sm',
 };
 
 function MetricCard({ icon, label, value, description, tone }: MetricCardProps) {
   return (
-    <Card className={tone === 'neutral' ? 'border-border/70 bg-card/70' : toneClasses[tone]}>
+    <Card className={toneClasses[tone]}>
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {icon}
@@ -171,7 +171,7 @@ function MetricCard({ icon, label, value, description, tone }: MetricCardProps) 
       </CardHeader>
       <CardContent className="pt-0">
         <div className="text-2xl font-semibold">{value}</div>
-        <Separator className="my-3 border-border/40" />
+        <Separator className="my-3 border-border/70" />
         <p className="text-xs text-muted-foreground/80">{description}</p>
       </CardContent>
     </Card>

@@ -181,8 +181,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container space-y-8 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#f5f8ff] via-white to-[#fdfdfd]">
+      <main className="container space-y-10 py-10">
         <header className="space-y-2 text-center">
           <motion.h1
             className="text-3xl font-semibold tracking-tight"
@@ -197,7 +197,21 @@ export default function App() {
           </p>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-[340px_1fr]">
+        <ResultsPanel
+          futurePrice={state.futureStockPrice}
+          stockPL={stockPL}
+          putValue={putValue}
+          putCost={putCost}
+          netResult={netResult}
+          taxImpact={taxImpact}
+          netAfterTax={netAfterTax}
+          breakEven={breakEven}
+          hedgeEffectiveness={effectiveness}
+          protectedRange={protectedRange}
+          worstCaseLoss={worstCase}
+        />
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,360px)_1fr]">
           <InputPanel
             state={state}
             presets={SYMBOL_PRESETS}
@@ -217,19 +231,10 @@ export default function App() {
           />
 
           <div className="space-y-6">
-            <ResultsPanel
-              futurePrice={state.futureStockPrice}
-              stockPL={stockPL}
-              putValue={putValue}
-              putCost={putCost}
-              netResult={netResult}
-              taxImpact={taxImpact}
-              netAfterTax={netAfterTax}
-              breakEven={breakEven}
-              hedgeEffectiveness={effectiveness}
-              protectedRange={protectedRange}
-              worstCaseLoss={worstCase}
-            />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ScenarioChart data={chartData} putStrike={state.putStrike} breakEven={breakEven} />
+              <ScenarioTable rows={scenarioRows} />
+            </div>
 
             <OptionChainPanel
               chain={chain}
@@ -238,11 +243,8 @@ export default function App() {
               onApply={handleApplyOption}
               isLoading={optionLoading}
               error={optionError}
+              referencePrice={quote?.price ?? state.futureStockPrice ?? null}
             />
-
-            <ScenarioChart data={chartData} putStrike={state.putStrike} breakEven={breakEven} />
-
-            <ScenarioTable rows={scenarioRows} />
           </div>
         </div>
       </main>
