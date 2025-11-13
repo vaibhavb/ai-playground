@@ -1,0 +1,358 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 2rem clamp(1rem, 4vw, 2.5rem) 3rem;
+  gap: 1.5rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-header h1 {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  margin: 0;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) 1fr;
+  gap: 1.75rem;
+  align-items: flex-start;
+}
+
+.inputs-panel {
+  position: sticky;
+  top: 1rem;
+}
+
+.insight-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panels {
+  display: grid;
+  gap: 1rem;
+}
+
+.quote-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.market-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.market-subtext {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.quote-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.quote-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.quote-header span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.quote-body {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.quote-card .button {
+  align-self: flex-start;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  padding: 1.35rem 1.5rem;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.card-subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.results-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.result-item span {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.result-item strong {
+  font-size: 1.4rem;
+}
+
+.chart-card {
+  min-height: 380px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.input-group {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.input-group label {
+  font-weight: 600;
+}
+
+.input-inline {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.control-grid {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.input-inline input[type='number'],
+.input-inline input[type='date'] {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: inherit;
+}
+
+.control-grid input[type='number'],
+.control-grid input[type='date'] {
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: inherit;
+}
+
+.slider-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.slider-row input[type='range'] {
+  flex: 1;
+}
+
+select {
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--surface-muted);
+  color: inherit;
+  font-weight: 600;
+}
+
+.quick-select {
+  margin-top: 0.25rem;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--accent-muted);
+}
+
+.table th,
+.table td {
+  padding: 0.65rem 0.75rem;
+  text-align: right;
+  border-bottom: 1px solid var(--card-border);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+}
+
+.pl-positive {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.pl-negative {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  background: var(--accent-muted);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.dark-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dark-toggle input {
+  accent-color: var(--accent);
+}
+
+.scenario-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.scenario-row input {
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: inherit;
+}
+
+.result-item.net.positive strong {
+  color: var(--success);
+}
+
+.result-item.net.negative strong {
+  color: var(--danger);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (max-width: 1100px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inputs-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 1rem;
+  }
+
+  .button-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+  }
+
+  select {
+    width: 100%;
+  }
+}
