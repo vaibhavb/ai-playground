@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply min-h-screen bg-background text-foreground font-sans;
+}
+
+#root {
+  @apply min-h-screen;
+}
