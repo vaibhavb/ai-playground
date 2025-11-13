@@ -25,20 +25,48 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
-      - name: Install dependencies
-        working-directory: stock-hedge-simulator
-        run: npm install
-
-      - name: Build React simulator
-        working-directory: stock-hedge-simulator
-        run: npm run build -- --base=/stock-hedge-simulator/
-
-      - name: Prepare static site
+      - name: Build Vite experiments
+        shell: bash
         run: |
-          mkdir -p _site/stock-hedge-simulator
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          mapfile -t vite_apps < <(
+            find . -maxdepth 2 -type f -name "vite.config.*" -not -path "./node_modules/*" -exec dirname {} \;
+            | sed 's|^\./||'
+            | sort
+            | uniq
+          )
+
+          repo_name="${GITHUB_REPOSITORY##*/}"
+          if [ -z "$repo_name" ] || [ "$repo_name" = "$GITHUB_REPOSITORY" ]; then
+            repo_name="$(basename "$PWD")"
+          fi
+
+          if [ ${#vite_apps[@]} -eq 0 ]; then
+            echo "No Vite apps detected; skipping JS build"
+          fi
+
+          for app in "${vite_apps[@]}"; do
+            [ -z "$app" ] && continue
+            [ "$app" = "." ] && continue
+            echo "\n📦 Building ${app}"
+            pushd "$app" >/dev/null
+            npm install
+            PUBLIC_BASE_PATH="/${repo_name}/${app}/" npm run build
+            popd >/dev/null
+
+            mkdir -p "_site/${app}"
+            if [ -d "${app}/dist" ]; then
+              shopt -s dotglob nullglob
+              cp -R "${app}/dist"/* "_site/${app}/"
+              shopt -u dotglob nullglob
+            fi
+          done
+
           cp index.html README.md _site/
-          cp -R stock-hedge-simulator/dist/* _site/stock-hedge-simulator/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

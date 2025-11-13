@@ -10,6 +10,9 @@
   --accent: #2563eb;
   --accent-muted: rgba(37, 99, 235, 0.15);
   --text-muted: #475467;
+  --surface-muted: #f3f6fb;
+  --success: #059669;
+  --danger: #dc2626;
 }
 
 body.dark {
@@ -20,6 +23,9 @@ body.dark {
   --accent: #60a5fa;
   --accent-muted: rgba(96, 165, 250, 0.25);
   --text-muted: #cbd5f5;
+  --surface-muted: rgba(148, 163, 184, 0.15);
+  --success: #34d399;
+  --danger: #f87171;
 }
 
 * {

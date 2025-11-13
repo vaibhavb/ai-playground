@@ -12,6 +12,12 @@ Create an experiment titled **Stock Hedge Simulator** that delivers a React play
 - Instant recalculation as the user manipulates sliders, numeric inputs, and helper buttons (reset, live NVDA price fetch, and max protection coverage).
 - Responsive design with optional dark mode for mobile and desktop usability.
 
+## Latest Enhancements
+- **Easier knobs & dials:** Every key input now pairs its slider/number entry with a curated dropdown for quick presets, so changing shares, strikes, premiums, and target prices only takes a tap.
+- **Reflowed insights:** Results, the outcome table, and the line chart stack in a dedicated insights column so the graph sits directly beneath the table it explains.
+- **Readable analytics:** Scenario tables highlight positive vs. negative outcomes, the net P/L card uses color-coded emphasis, and the chart adds zero-line and axis labels for easier interpretation.
+- **Future-ready deployment:** The GitHub Pages workflow auto-discovers every Vite experiment directory, builds each with its own base path, and stages them for the static site without additional config.
+
 ## Running Locally
 ```
 cd stock-hedge-simulator

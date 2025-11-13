@@ -263,31 +263,32 @@ export default function App() {
         </label>
       </header>
 
-      <div className="layout">
-        <InputPanel
-          inputs={inputs}
-          onNumberChange={handleNumberChange}
-          onTextChange={handleTextChange}
-          onExpirationChange={handleExpirationChange}
-          onReset={handleReset}
-          onUseTodayPrice={handleUseTodayPrice}
-          onMaxProtection={handleMaxProtection}
-          isFetchingPrice={fetchState.loading}
-          fetchError={fetchState.error}
-          scenarioCheckpoints={scenarioCheckpoints}
-          onAddCheckpoint={handleAddCheckpoint}
-          onUpdateCheckpoint={handleUpdateCheckpoint}
-          onRemoveCheckpoint={handleRemoveCheckpoint}
-        />
-        <ResultsPanel metrics={results} />
-      </div>
-
-      <div className="bottom-section">
-        <ScenarioChart data={chartData} putStrike={inputs.putStrike} isDark={isDarkMode} />
-        <ScenarioTable
-          rows={scenarioRows}
-          checkpoints={scenarioCheckpoints.map((item) => item.price)}
-        />
+      <div className="main-grid">
+        <div className="inputs-panel">
+          <InputPanel
+            inputs={inputs}
+            onNumberChange={handleNumberChange}
+            onTextChange={handleTextChange}
+            onExpirationChange={handleExpirationChange}
+            onReset={handleReset}
+            onUseTodayPrice={handleUseTodayPrice}
+            onMaxProtection={handleMaxProtection}
+            isFetchingPrice={fetchState.loading}
+            fetchError={fetchState.error}
+            scenarioCheckpoints={scenarioCheckpoints}
+            onAddCheckpoint={handleAddCheckpoint}
+            onUpdateCheckpoint={handleUpdateCheckpoint}
+            onRemoveCheckpoint={handleRemoveCheckpoint}
+          />
+        </div>
+        <div className="insight-stack">
+          <ResultsPanel metrics={results} />
+          <ScenarioTable
+            rows={scenarioRows}
+            checkpoints={scenarioCheckpoints.map((item) => item.price)}
+          />
+          <ScenarioChart data={chartData} putStrike={inputs.putStrike} isDark={isDarkMode} />
+        </div>
       </div>
     </div>
   );

@@ -9,7 +9,13 @@ const currencyFormatter = (value) =>
 export function ScenarioTable({ rows, checkpoints }) {
   return (
     <div className="card">
-      <h2>Scenario Table</h2>
+      <div className="card-header">
+        <h2>Outcome Table</h2>
+        <p className="card-subtitle">
+          Anchor on key NVDA prices plus any checkpoints you add. Values update in real time as
+          you tweak the controls.
+        </p>
+      </div>
       <table className="table">
         <thead>
           <tr>
@@ -25,7 +31,9 @@ export function ScenarioTable({ rows, checkpoints }) {
               <td>{currencyFormatter(row.price)}</td>
               <td>{currencyFormatter(row.stockPL)}</td>
               <td>{currencyFormatter(row.putValue)}</td>
-              <td>{currencyFormatter(row.netResult)}</td>
+              <td className={row.netResult >= 0 ? 'pl-positive' : 'pl-negative'}>
+                {currencyFormatter(row.netResult)}
+              </td>
             </tr>
           ))}
         </tbody>

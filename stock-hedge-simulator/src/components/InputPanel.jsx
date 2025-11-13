@@ -6,6 +6,12 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
+const sharePresets = [100, 500, 1000, 1500, 2000, 3000];
+const strikePresets = [120, 140, 150, 160, 175, 200];
+const premiumPresets = [5, 7.5, 10, 12.5, 15];
+const contractsPresets = [5, 8, 10, 12, 15, 20];
+const futurePricePresets = [80, 100, 120, 150, 187, 220, 250];
+
 export function InputPanel({
   inputs,
   onNumberChange,
@@ -25,6 +31,13 @@ export function InputPanel({
     () => Math.ceil(inputs.sharesOwned / 100),
     [inputs.sharesOwned]
   );
+
+  const selectValue = (value, presets) => (presets.includes(value) ? value : '');
+  const handlePresetChange = (field) => (event) => {
+    const { value } = event.target;
+    if (!value) return;
+    onNumberChange(field, Number(value));
+  };
 
   return (
     <div className="card">
@@ -55,16 +68,30 @@ export function InputPanel({
         <h3 className="section-title">Stock Position</h3>
         <div className="input-group">
           <label htmlFor="sharesOwned">Shares owned</label>
-          <input
-            id="sharesOwned"
-            type="number"
-            min={0}
-            step={100}
-            value={inputs.sharesOwned}
-            onChange={(event) =>
-              onNumberChange('sharesOwned', Number(event.target.value) || 0)
-            }
-          />
+          <div className="control-grid">
+            <input
+              id="sharesOwned"
+              type="number"
+              min={0}
+              step={100}
+              value={inputs.sharesOwned}
+              onChange={(event) =>
+                onNumberChange('sharesOwned', Number(event.target.value) || 0)
+              }
+            />
+            <select
+              aria-label="Share quick pick"
+              value={selectValue(inputs.sharesOwned, sharePresets)}
+              onChange={handlePresetChange('sharesOwned')}
+            >
+              <option value="">Pick preset…</option>
+              {sharePresets.map((option) => (
+                <option key={option} value={option}>
+                  {option.toLocaleString()} shares
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="input-group">
           <label htmlFor="sharePurchasePrice">Purchase price per share</label>
@@ -110,6 +137,23 @@ export function InputPanel({
               }
             />
           </div>
+          <div className="quick-select">
+            <label className="sr-only" htmlFor="putStrikePreset">
+              Strike quick pick
+            </label>
+            <select
+              id="putStrikePreset"
+              value={selectValue(inputs.putStrike, strikePresets)}
+              onChange={handlePresetChange('putStrike')}
+            >
+              <option value="">Strike presets…</option>
+              {strikePresets.map((strike) => (
+                <option key={strike} value={strike}>
+                  ${strike}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="input-group">
           <label htmlFor="putExpirationDate">Expiration</label>
@@ -137,19 +181,50 @@ export function InputPanel({
               {contractsNeeded} contracts covers {inputs.sharesOwned} shares
             </span>
           </div>
+          <div className="quick-select">
+            <label className="sr-only" htmlFor="contractsPreset">
+              Contract quick pick
+            </label>
+            <select
+              id="contractsPreset"
+              value={selectValue(inputs.contractsBought, contractsPresets)}
+              onChange={handlePresetChange('contractsBought')}
+            >
+              <option value="">Match contracts…</option>
+              {contractsPresets.map((contract) => (
+                <option key={contract} value={contract}>
+                  {contract} contracts
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="input-group">
           <label htmlFor="premiumPerShare">Premium per share</label>
-          <input
-            id="premiumPerShare"
-            type="number"
-            min={0}
-            step={0.01}
-            value={inputs.premiumPerShare}
-            onChange={(event) =>
-              onNumberChange('premiumPerShare', Number(event.target.value) || 0)
-            }
-          />
+          <div className="control-grid">
+            <input
+              id="premiumPerShare"
+              type="number"
+              min={0}
+              step={0.01}
+              value={inputs.premiumPerShare}
+              onChange={(event) =>
+                onNumberChange('premiumPerShare', Number(event.target.value) || 0)
+              }
+            />
+            <select
+              aria-label="Premium quick pick"
+              value={selectValue(inputs.premiumPerShare, premiumPresets)}
+              onChange={handlePresetChange('premiumPerShare')}
+            >
+              <option value="">Premium presets…</option>
+              {premiumPresets.map((premium) => (
+                <option key={premium} value={premium}>
+                  ${premium}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </section>
 
@@ -178,6 +253,23 @@ export function InputPanel({
                 onNumberChange('futureStockPrice', Number(event.target.value) || 0)
               }
             />
+          </div>
+          <div className="quick-select">
+            <label className="sr-only" htmlFor="futurePricePreset">
+              Future price quick pick
+            </label>
+            <select
+              id="futurePricePreset"
+              value={selectValue(inputs.futureStockPrice, futurePricePresets)}
+              onChange={handlePresetChange('futureStockPrice')}
+            >
+              <option value="">Scenario presets…</option>
+              {futurePricePresets.map((price) => (
+                <option key={price} value={price}>
+                  ${price}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="input-group">

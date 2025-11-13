@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
 import {
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  ReferenceLine,
 } from 'recharts';
 
 const currencyFormatter = (value) =>
@@ -18,27 +19,55 @@ export function ScenarioChart({ data, putStrike, isDark }) {
     <div className="card chart-card">
       <h2>Scenario Analysis</h2>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
-          <CartesianGrid stroke={isDark ? '#1f2937' : '#e2e8f0'} strokeDasharray="3 3" />
+        <LineChart data={data} margin={{ top: 10, right: 24, left: 0, bottom: 30 }}>
+          <CartesianGrid stroke={isDark ? '#1f2937' : '#e2e8f0'} strokeDasharray="4 4" />
           <XAxis
             dataKey="price"
             stroke={isDark ? '#cbd5f5' : '#475467'}
             tickFormatter={currencyFormatter}
             type="number"
             domain={['auto', 'auto']}
+            label={{
+              value: 'Future NVDA price',
+              position: 'insideBottom',
+              offset: -20,
+              fill: isDark ? '#cbd5f5' : '#475467',
+            }}
           />
           <YAxis
             stroke={isDark ? '#cbd5f5' : '#475467'}
             tickFormatter={currencyFormatter}
             width={90}
+            label={{
+              value: 'Profit / Loss',
+              angle: -90,
+              position: 'insideLeft',
+              fill: isDark ? '#cbd5f5' : '#475467',
+              offset: 10,
+            }}
           />
           <Tooltip
-            formatter={(value) => currencyFormatter(value)}
+            formatter={(value, name) => [currencyFormatter(value), `${name} P/L`]}
             labelFormatter={(value) => `NVDA @ ${currencyFormatter(value)}`}
             contentStyle={{
               background: isDark ? '#1e293b' : '#fff',
               borderRadius: 12,
               borderColor: isDark ? '#334155' : '#d5dde5',
+            }}
+          />
+          <Legend
+            wrapperStyle={{ color: isDark ? '#cbd5f5' : '#1f2933' }}
+            verticalAlign="bottom"
+            height={28}
+          />
+          <ReferenceLine
+            y={0}
+            stroke={isDark ? '#475467' : '#cbd5f5'}
+            strokeDasharray="2 4"
+            label={{
+              value: 'Break-even',
+              position: 'insideLeft',
+              fill: isDark ? '#cbd5f5' : '#475467',
             }}
           />
           <Line

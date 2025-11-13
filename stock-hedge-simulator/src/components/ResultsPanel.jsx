@@ -15,6 +15,7 @@ const percentFormatter = new Intl.NumberFormat('en-US', {
 export function ResultsPanel({
   metrics,
 }) {
+  const netClassName = metrics.netPL >= 0 ? 'positive' : 'negative';
   return (
     <div className="card">
       <h2>Hedge Summary</h2>
@@ -31,7 +32,7 @@ export function ResultsPanel({
           <span>Total put cost</span>
           <strong>{currencyFormatter.format(metrics.putCost)}</strong>
         </div>
-        <div className="result-item">
+        <div className={`result-item net ${netClassName}`}>
           <span>Net result</span>
           <strong>{currencyFormatter.format(metrics.netPL)}</strong>
         </div>
