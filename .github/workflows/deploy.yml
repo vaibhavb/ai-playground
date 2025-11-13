@@ -1,0 +1,90 @@
+name: Build and Deploy Static Site
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            **/package-lock.json
+            **/npm-shrinkwrap.json
+            **/yarn.lock
+
+      - name: Build Vite experiments
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          mapfile -t vite_apps < <(
+            find . -maxdepth 2 -type f -name "vite.config.*" -not -path "./node_modules/*" -exec dirname {} \;
+            | sed 's|^\./||'
+            | sort
+            | uniq
+          )
+
+          repo_name="${GITHUB_REPOSITORY##*/}"
+          if [ -z "$repo_name" ] || [ "$repo_name" = "$GITHUB_REPOSITORY" ]; then
+            repo_name="$(basename "$PWD")"
+          fi
+
+          if [ ${#vite_apps[@]} -eq 0 ]; then
+            echo "No Vite apps detected; skipping JS build"
+          fi
+
+          for app in "${vite_apps[@]}"; do
+            [ -z "$app" ] && continue
+            [ "$app" = "." ] && continue
+            echo "\n📦 Building ${app}"
+            pushd "$app" >/dev/null
+            npm install
+            npm test
+            PUBLIC_BASE_PATH="/${repo_name}/${app}/" npm run build
+            popd >/dev/null
+
+            mkdir -p "_site/${app}"
+            if [ -d "${app}/dist" ]; then
+              shopt -s dotglob nullglob
+              cp -R "${app}/dist"/* "_site/${app}/"
+              shopt -u dotglob nullglob
+            fi
+          done
+
+          cp index.html README.md _site/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
