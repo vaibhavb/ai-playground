@@ -17,6 +17,7 @@ Create an experiment titled **Stock Hedge Simulator** that delivers a React play
 - **Reflowed insights:** Results, the outcome table, and the line chart stack in a dedicated insights column so the graph sits directly beneath the table it explains.
 - **Readable analytics:** Scenario tables highlight positive vs. negative outcomes, the net P/L card uses color-coded emphasis, and the chart adds zero-line and axis labels for easier interpretation.
 - **Future-ready deployment:** The GitHub Pages workflow auto-discovers every Vite experiment directory, builds each with its own base path, and stages them for the static site without additional config.
+- **Verified math engine:** Core hedge formulas now live in dedicated utilities with Vitest coverage to lock in stock, option, and risk metrics for every scenario.
 
 ## Running Locally
 ```
@@ -28,6 +29,11 @@ npm run dev
 ## Build
 ```
 npm run build
+```
+
+## Test
+```
+npm test
 ```
 
 ## Notes

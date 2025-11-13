@@ -5,6 +5,19 @@ import InputPanel from './components/InputPanel.jsx';
 import ResultsPanel from './components/ResultsPanel.jsx';
 import ScenarioChart from './components/ScenarioChart.jsx';
 import ScenarioTable from './components/ScenarioTable.jsx';
+import {
+  BASE_SCENARIO_PRICES,
+  computeBreakEvenPrice,
+  computeHedgeEffectiveness,
+  computeNetResult,
+  computePutCost,
+  computePutValue,
+  computeStockPL,
+  computeWorstCaseLoss,
+  formatProtectedDownsideRange,
+  generateChartData,
+  generateScenarioRows,
+} from './utils/calculations.js';
 import './App.css';
 
 const DEFAULT_EXPIRATION = format(addMonths(new Date(), 3), 'yyyy-MM-dd');
@@ -19,8 +32,6 @@ const DEFAULT_INPUTS = {
   futureStockPrice: 160,
   analysisDate: DEFAULT_EXPIRATION,
 };
-
-const DEFAULT_SCENARIOS = [200, 180, 150, 140, 100];
 
 const formatCurrency = (value, options = {}) =>
   new Intl.NumberFormat('en-US', {
@@ -41,119 +52,111 @@ export default function App() {
     document.body.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
+  const calculationInputs = useMemo(
+    () => ({
+      sharesOwned: inputs.sharesOwned,
+      sharePurchasePrice: inputs.sharePurchasePrice,
+      putStrike: inputs.putStrike,
+      contractsBought: inputs.contractsBought,
+      premiumPerShare: inputs.premiumPerShare,
+      futureStockPrice: inputs.futureStockPrice,
+    }),
+    [
+      inputs.sharesOwned,
+      inputs.sharePurchasePrice,
+      inputs.putStrike,
+      inputs.contractsBought,
+      inputs.premiumPerShare,
+      inputs.futureStockPrice,
+    ]
+  );
+
   const putCost = useMemo(
-    () => inputs.premiumPerShare * 100 * inputs.contractsBought,
+    () => computePutCost(inputs.premiumPerShare, inputs.contractsBought),
     [inputs.premiumPerShare, inputs.contractsBought]
   );
 
-  const unhedgedAt = useCallback(
-    (price) => (price - inputs.sharePurchasePrice) * inputs.sharesOwned,
-    [inputs.sharePurchasePrice, inputs.sharesOwned]
-  );
-
   const hedgedAt = useCallback(
-    (price) => {
-      const stockPL = unhedgedAt(price);
-      const intrinsic = Math.max(inputs.putStrike - price, 0) * 100 * inputs.contractsBought;
-      return stockPL + intrinsic - putCost;
-    },
-    [inputs.putStrike, inputs.contractsBought, putCost, unhedgedAt]
+    (price) => computeNetResult(price, calculationInputs, { putCost }),
+    [calculationInputs, putCost]
   );
 
   const stockPL = useMemo(
-    () => unhedgedAt(inputs.futureStockPrice),
-    [inputs.futureStockPrice, unhedgedAt]
+    () =>
+      computeStockPL(
+        calculationInputs.futureStockPrice,
+        calculationInputs.sharePurchasePrice,
+        calculationInputs.sharesOwned
+      ),
+    [
+      calculationInputs.futureStockPrice,
+      calculationInputs.sharePurchasePrice,
+      calculationInputs.sharesOwned,
+    ]
   );
 
   const putValue = useMemo(
-    () => Math.max(inputs.putStrike - inputs.futureStockPrice, 0) * 100 * inputs.contractsBought,
-    [inputs.putStrike, inputs.futureStockPrice, inputs.contractsBought]
+    () =>
+      computePutValue(
+        calculationInputs.putStrike,
+        calculationInputs.futureStockPrice,
+        calculationInputs.contractsBought
+      ),
+    [
+      calculationInputs.putStrike,
+      calculationInputs.futureStockPrice,
+      calculationInputs.contractsBought,
+    ]
   );
 
   const netPL = useMemo(
-    () => hedgedAt(inputs.futureStockPrice),
-    [hedgedAt, inputs.futureStockPrice]
+    () => hedgedAt(calculationInputs.futureStockPrice),
+    [hedgedAt, calculationInputs.futureStockPrice]
   );
 
-  const breakEvenPrice = useMemo(() => {
-    const denominator = inputs.sharesOwned || 1;
-    return inputs.sharePurchasePrice + putCost / denominator;
-  }, [inputs.sharePurchasePrice, inputs.sharesOwned, putCost]);
+  const breakEvenPrice = useMemo(
+    () =>
+      computeBreakEvenPrice(
+        calculationInputs.sharePurchasePrice,
+        calculationInputs.sharesOwned,
+        putCost
+      ),
+    [calculationInputs.sharePurchasePrice, calculationInputs.sharesOwned, putCost]
+  );
 
   const hedgeEffectiveness = useMemo(() => {
     const unhedged = stockPL;
     const hedged = netPL;
-
-    if (unhedged < 0) {
-      const improvement = 1 - hedged / (unhedged || -1);
-      return Math.max(0, Math.min(1, improvement));
-    }
-
-    if (unhedged === 0) {
-      return hedged >= 0 ? 1 : 0;
-    }
-
-    if (hedged >= unhedged) {
-      return 1;
-    }
-
-    const capture = hedged / unhedged;
-    return Math.max(0, Math.min(1, capture));
+    return computeHedgeEffectiveness(unhedged, hedged);
   }, [stockPL, netPL]);
 
-  const worstCaseLoss = useMemo(() => {
-    const lowestPrice = 0;
-    const toZero = hedgedAt(lowestPrice);
-    const atStrike = hedgedAt(inputs.putStrike);
-    return Math.min(toZero, atStrike);
-  }, [hedgedAt, inputs.putStrike]);
+  const worstCaseLoss = useMemo(
+    () => computeWorstCaseLoss(calculationInputs, { putCost }),
+    [calculationInputs, putCost]
+  );
 
   const protectedDownside = useMemo(
-    () => `Down to $${inputs.putStrike.toFixed(0)} | Max loss ${formatCurrency(Math.abs(worstCaseLoss))}`,
-    [inputs.putStrike, worstCaseLoss]
+    () =>
+      formatProtectedDownsideRange(
+        calculationInputs.putStrike,
+        worstCaseLoss,
+        (value) => formatCurrency(value)
+      ),
+    [calculationInputs.putStrike, worstCaseLoss]
   );
 
   const scenarioRows = useMemo(() => {
-    const prices = new Set([...DEFAULT_SCENARIOS]);
-    scenarioCheckpoints.forEach((checkpoint) => {
-      if (Number.isFinite(checkpoint.price)) {
-        prices.add(Math.round(checkpoint.price));
-      }
-    });
-    const sorted = Array.from(prices).sort((a, b) => b - a);
-    return sorted.map((price) => ({
-      price,
-      stockPL: unhedgedAt(price),
-      putValue: Math.max(inputs.putStrike - price, 0) * 100 * inputs.contractsBought,
-      netResult: hedgedAt(price),
-    }));
-  }, [inputs.contractsBought, inputs.putStrike, hedgedAt, scenarioCheckpoints, unhedgedAt]);
+    return generateScenarioRows(
+      calculationInputs,
+      scenarioCheckpoints,
+      BASE_SCENARIO_PRICES,
+      { putCost }
+    );
+  }, [calculationInputs, scenarioCheckpoints, putCost]);
 
   const chartData = useMemo(() => {
-    const minPrice = Math.max(
-      0,
-      Math.min(inputs.sharePurchasePrice, inputs.putStrike, inputs.futureStockPrice) - 120
-    );
-    const maxPrice = Math.max(
-      inputs.sharePurchasePrice,
-      inputs.putStrike,
-      inputs.futureStockPrice,
-      ...DEFAULT_SCENARIOS,
-      ...scenarioCheckpoints.map((item) => item.price || 0)
-    ) + 120;
-
-    const steps = 80;
-    const span = Math.max(20, maxPrice - minPrice);
-    const increment = span / steps;
-    return Array.from({ length: steps + 1 }, (_, index) => {
-      const price = Math.round((minPrice + increment * index) * 100) / 100;
-      return {
-        price,
-        hedged: hedgedAt(price),
-        unhedged: unhedgedAt(price),
-      };
-    });
-  }, [hedgedAt, unhedgedAt, inputs.sharePurchasePrice, inputs.putStrike, inputs.futureStockPrice, scenarioCheckpoints]);
+    return generateChartData(calculationInputs, scenarioCheckpoints, { steps: 80 }, { putCost });
+  }, [calculationInputs, scenarioCheckpoints, putCost]);
 
   const handleNumberChange = useCallback((field, value) => {
     setInputs((current) => ({ ...current, [field]: value }));
