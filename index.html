@@ -58,19 +58,27 @@
     <main>
       <div id="readme">Loading README…</div>
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" integrity="sha256-pWWEDuJeayQMZT6X0hgqP/d9vywgq6Z9erjRzCQXDpU=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
     <script>
       async function renderReadme() {
         try {
+          // Test that marked.js is loaded correctly
+          if (typeof marked === 'undefined' || typeof marked.parse !== 'function') {
+            throw new Error('marked.js library failed to load');
+          }
+
           const response = await fetch('README.md');
           if (!response.ok) {
             throw new Error('Unable to load README.md');
           }
           const markdown = await response.text();
-          const html = window.marked.parse(markdown);
+          const html = marked.parse(markdown);
           document.getElementById('readme').innerHTML = html;
         } catch (error) {
-          document.getElementById('readme').textContent = error.message;
+          document.getElementById('readme').innerHTML =
+            '<div style="color: #ef4444; padding: 1rem; border: 1px solid #ef4444; border-radius: 8px;">' +
+            '<strong>Error:</strong> ' + error.message + '</div>';
+          console.error('Render error:', error);
         }
       }
 
