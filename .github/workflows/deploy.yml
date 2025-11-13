@@ -40,6 +40,11 @@ jobs:
             | uniq
           )
 
+          repo_name="${GITHUB_REPOSITORY##*/}"
+          if [ -z "$repo_name" ] || [ "$repo_name" = "$GITHUB_REPOSITORY" ]; then
+            repo_name="$(basename "$PWD")"
+          fi
+
           if [ ${#vite_apps[@]} -eq 0 ]; then
             echo "No Vite apps detected; skipping JS build"
           fi
@@ -50,7 +55,7 @@ jobs:
             echo "\n📦 Building ${app}"
             pushd "$app" >/dev/null
             npm install
-            PUBLIC_BASE_PATH="/${app}/" npm run build
+            PUBLIC_BASE_PATH="/${repo_name}/${app}/" npm run build
             popd >/dev/null
 
             mkdir -p "_site/${app}"

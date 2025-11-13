@@ -3,9 +3,15 @@ import react from '@vitejs/plugin-react';
 
 const normalizeBase = (basePath) => {
   if (!basePath) {
-    return '/stock-hedge-simulator/';
+    return './';
   }
-  return basePath.endsWith('/') ? basePath : `${basePath}/`;
+
+  let normalized = basePath;
+  if (!normalized.startsWith('/') && !normalized.startsWith('./')) {
+    normalized = `/${normalized}`;
+  }
+
+  return normalized.endsWith('/') ? normalized : `${normalized}/`;
 };
 
 export default defineConfig({
