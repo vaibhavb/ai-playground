@@ -45,6 +45,53 @@
   gap: 1rem;
 }
 
+.quote-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.market-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.market-subtext {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.quote-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.quote-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.quote-header span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.quote-body {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.quote-card .button {
+  align-self: flex-start;
+}
+
 .card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);

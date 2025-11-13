@@ -16,6 +16,8 @@ export function ResultsPanel({
   metrics,
 }) {
   const netClassName = metrics.netPL >= 0 ? 'positive' : 'negative';
+  const afterTaxClassName = metrics.netAfterTax >= 0 ? 'positive' : 'negative';
+  const taxClassName = metrics.taxImpact >= 0 ? 'negative' : 'positive';
   return (
     <div className="card">
       <h2>Hedge Summary</h2>
@@ -35,6 +37,14 @@ export function ResultsPanel({
         <div className={`result-item net ${netClassName}`}>
           <span>Net result</span>
           <strong>{currencyFormatter.format(metrics.netPL)}</strong>
+        </div>
+        <div className={`result-item net ${taxClassName}`}>
+          <span>Tax impact ({percentFormatter.format(metrics.taxRate)})</span>
+          <strong>{currencyFormatter.format(metrics.taxImpact)}</strong>
+        </div>
+        <div className={`result-item net ${afterTaxClassName}`}>
+          <span>Net after tax</span>
+          <strong>{currencyFormatter.format(metrics.netAfterTax)}</strong>
         </div>
         <div className="result-item">
           <span>Hedge effectiveness</span>
@@ -63,9 +73,12 @@ ResultsPanel.propTypes = {
     putValue: PropTypes.number.isRequired,
     putCost: PropTypes.number.isRequired,
     netPL: PropTypes.number.isRequired,
+    taxImpact: PropTypes.number.isRequired,
+    netAfterTax: PropTypes.number.isRequired,
     hedgeEffectiveness: PropTypes.number,
     protectedDownside: PropTypes.string.isRequired,
     breakEvenPrice: PropTypes.number.isRequired,
+    taxRate: PropTypes.number.isRequired,
   }).isRequired,
 };
 

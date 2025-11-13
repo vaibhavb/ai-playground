@@ -14,7 +14,13 @@ import {
 const currencyFormatter = (value) =>
   `$${Number(value).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 
-export function ScenarioChart({ data, putStrike, isDark }) {
+const labelMap = {
+  hedged: 'Hedged',
+  unhedged: 'Unhedged',
+  hedgedAfterTax: 'Hedged after tax',
+};
+
+export function ScenarioChart({ data, putStrike, isDark, symbol }) {
   return (
     <div className="card chart-card">
       <h2>Scenario Analysis</h2>
@@ -28,7 +34,7 @@ export function ScenarioChart({ data, putStrike, isDark }) {
             type="number"
             domain={['auto', 'auto']}
             label={{
-              value: 'Future NVDA price',
+              value: `Future ${symbol} price`,
               position: 'insideBottom',
               offset: -20,
               fill: isDark ? '#cbd5f5' : '#475467',
@@ -47,8 +53,11 @@ export function ScenarioChart({ data, putStrike, isDark }) {
             }}
           />
           <Tooltip
-            formatter={(value, name) => [currencyFormatter(value), `${name} P/L`]}
-            labelFormatter={(value) => `NVDA @ ${currencyFormatter(value)}`}
+            formatter={(value, name) => [
+              currencyFormatter(value),
+              `${labelMap[name] ?? name} P/L`,
+            ]}
+            labelFormatter={(value) => `${symbol} @ ${currencyFormatter(value)}`}
             contentStyle={{
               background: isDark ? '#1e293b' : '#fff',
               borderRadius: 12,
@@ -86,6 +95,15 @@ export function ScenarioChart({ data, putStrike, isDark }) {
             dot={false}
             name="Hedged"
           />
+          <Line
+            type="monotone"
+            dataKey="hedgedAfterTax"
+            stroke="#7c3aed"
+            strokeWidth={3}
+            strokeDasharray="4 4"
+            dot={false}
+            name="Hedged after tax"
+          />
           <ReferenceLine
             x={putStrike}
             stroke="#38bdf8"
@@ -108,10 +126,12 @@ ScenarioChart.propTypes = {
       price: PropTypes.number.isRequired,
       hedged: PropTypes.number.isRequired,
       unhedged: PropTypes.number.isRequired,
+      hedgedAfterTax: PropTypes.number.isRequired,
     })
   ).isRequired,
   putStrike: PropTypes.number.isRequired,
   isDark: PropTypes.bool.isRequired,
+  symbol: PropTypes.string.isRequired,
 };
 
 export default ScenarioChart;

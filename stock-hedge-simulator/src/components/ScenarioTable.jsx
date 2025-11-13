@@ -6,13 +6,19 @@ const currencyFormatter = (value) =>
     maximumFractionDigits: 0,
   })}`;
 
-export function ScenarioTable({ rows, checkpoints }) {
+const percentFormatter = new Intl.NumberFormat('en-US', {
+  style: 'percent',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 1,
+});
+
+export function ScenarioTable({ rows, checkpoints, taxRate, symbol }) {
   return (
     <div className="card">
       <div className="card-header">
         <h2>Outcome Table</h2>
         <p className="card-subtitle">
-          Anchor on key NVDA prices plus any checkpoints you add. Values update in real time as
+          Anchor on key {symbol} prices plus any checkpoints you add. Values update in real time as
           you tweak the controls.
         </p>
       </div>
@@ -23,6 +29,8 @@ export function ScenarioTable({ rows, checkpoints }) {
             <th scope="col">Stock P/L</th>
             <th scope="col">Put payout</th>
             <th scope="col">Net result</th>
+            <th scope="col">Tax impact ({percentFormatter.format(taxRate)})</th>
+            <th scope="col">Net after tax</th>
           </tr>
         </thead>
         <tbody>
@@ -33,6 +41,12 @@ export function ScenarioTable({ rows, checkpoints }) {
               <td>{currencyFormatter(row.putValue)}</td>
               <td className={row.netResult >= 0 ? 'pl-positive' : 'pl-negative'}>
                 {currencyFormatter(row.netResult)}
+              </td>
+              <td className={row.taxImpact >= 0 ? 'pl-negative' : 'pl-positive'}>
+                {currencyFormatter(row.taxImpact)}
+              </td>
+              <td className={row.netAfterTax >= 0 ? 'pl-positive' : 'pl-negative'}>
+                {currencyFormatter(row.netAfterTax)}
               </td>
             </tr>
           ))}
@@ -54,9 +68,13 @@ ScenarioTable.propTypes = {
       stockPL: PropTypes.number.isRequired,
       putValue: PropTypes.number.isRequired,
       netResult: PropTypes.number.isRequired,
+      taxImpact: PropTypes.number.isRequired,
+      netAfterTax: PropTypes.number.isRequired,
     })
   ).isRequired,
   checkpoints: PropTypes.arrayOf(PropTypes.number).isRequired,
+  taxRate: PropTypes.number.isRequired,
+  symbol: PropTypes.string.isRequired,
 };
 
 export default ScenarioTable;

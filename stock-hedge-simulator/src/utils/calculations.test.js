@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   BASE_SCENARIO_PRICES,
+  computeAfterTaxNet,
   computeBreakEvenPrice,
   computeHedgeEffectiveness,
   computeNetResult,
   computePutCost,
   computePutValue,
   computeStockPL,
+  computeTaxImpact,
   computeWorstCaseLoss,
   formatProtectedDownsideRange,
   generateChartData,
@@ -20,6 +22,7 @@ const SAMPLE_INPUTS = {
   contractsBought: 10,
   premiumPerShare: 10,
   futureStockPrice: 160,
+  taxRate: 0.25,
 };
 
 describe('hedge calculations', () => {
@@ -35,6 +38,12 @@ describe('hedge calculations', () => {
 
     const netResult = computeNetResult(140, SAMPLE_INPUTS, { putCost });
     expect(netResult).toBe(-47000);
+
+    const taxImpact = computeTaxImpact(netResult, SAMPLE_INPUTS.taxRate);
+    expect(taxImpact).toBeCloseTo(-11750, 2);
+
+    const afterTax = computeAfterTaxNet(netResult, SAMPLE_INPUTS.taxRate);
+    expect(afterTax).toBeCloseTo(-35250, 2);
   });
 
   it('derives break-even prices from hedge costs', () => {
@@ -84,6 +93,8 @@ describe('scenario helpers', () => {
     expect(rows[0]).toHaveProperty('stockPL');
     expect(rows[0]).toHaveProperty('putValue');
     expect(rows[0]).toHaveProperty('netResult');
+    expect(rows[0]).toHaveProperty('taxImpact');
+    expect(rows[0]).toHaveProperty('netAfterTax');
   });
 
   it('generates chart data spanning surrounding prices', () => {
@@ -95,5 +106,6 @@ describe('scenario helpers', () => {
     const sample = chart[Math.floor(chart.length / 2)];
     expect(sample).toHaveProperty('hedged');
     expect(sample).toHaveProperty('unhedged');
+    expect(sample).toHaveProperty('hedgedAfterTax');
   });
 });

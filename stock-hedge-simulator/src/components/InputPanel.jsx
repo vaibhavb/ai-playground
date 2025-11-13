@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { format, formatDistanceToNow } from 'date-fns';
 import PropTypes from 'prop-types';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -11,17 +12,56 @@ const strikePresets = [120, 140, 150, 160, 175, 200];
 const premiumPresets = [5, 7.5, 10, 12.5, 15];
 const contractsPresets = [5, 8, 10, 12, 15, 20];
 const futurePricePresets = [80, 100, 120, 150, 187, 220, 250];
+const taxRatePresets = [0, 0.15, 0.2, 0.238, 0.3, 0.37];
+
+const percentFormatter = new Intl.NumberFormat('en-US', {
+  style: 'percent',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 1,
+});
+
+const describeAsOf = (timestamp) => {
+  if (!timestamp) return null;
+  try {
+    return `${format(timestamp, 'MMM d, yyyy HH:mm')} UTC · ${formatDistanceToNow(timestamp, {
+      addSuffix: true,
+    })}`;
+  } catch (error) {
+    return null;
+  }
+};
+
+const describeOptionQuote = (quote) => {
+  const premium = currencyFormatter.format(quote.premium);
+  const suffix = quote.lastPrice
+    ? `Last ${currencyFormatter.format(quote.lastPrice)}`
+    : quote.bid && quote.ask
+      ? `Mid of ${currencyFormatter.format(quote.bid)} / ${currencyFormatter.format(quote.ask)}`
+      : quote.bid
+        ? `Bid ${currencyFormatter.format(quote.bid)}`
+        : quote.ask
+          ? `Ask ${currencyFormatter.format(quote.ask)}`
+          : null;
+  return suffix ? `${premium} • ${suffix}` : premium;
+};
 
 export function InputPanel({
   inputs,
+  stocks,
+  selectedSymbol,
+  marketState,
+  optionState,
+  optionSuggestions,
   onNumberChange,
   onTextChange,
   onExpirationChange,
   onReset,
-  onUseTodayPrice,
+  onRefreshMarketData,
+  onApplyLivePrice,
+  onApplyLiveBasis,
   onMaxProtection,
-  isFetchingPrice,
-  fetchError,
+  onSymbolChange,
+  onApplyPutQuote,
   scenarioCheckpoints,
   onAddCheckpoint,
   onUpdateCheckpoint,
@@ -39,6 +79,9 @@ export function InputPanel({
     onNumberChange(field, Number(value));
   };
 
+  const latestQuoteDescription = describeAsOf(marketState.asOf);
+  const disableQuoteActions = !Number.isFinite(marketState.price);
+
   return (
     <div className="card">
       <h2>Controls</h2>
@@ -46,23 +89,103 @@ export function InputPanel({
         <button className="button" type="button" onClick={onReset}>
           Reset to Default
         </button>
-        <button
-          className="button"
-          type="button"
-          onClick={onUseTodayPrice}
-          disabled={isFetchingPrice}
-        >
-          {isFetchingPrice ? 'Fetching price…' : "Use Today's NVDA Price"}
-        </button>
         <button className="button" type="button" onClick={onMaxProtection}>
           Max Protection
         </button>
       </div>
-      {fetchError ? (
-        <p className="badge" role="alert">
-          Could not load live data: {fetchError}
-        </p>
-      ) : null}
+
+      <section>
+        <h3 className="section-title">Market Data</h3>
+        <div className="input-group">
+          <label htmlFor="symbol">Symbol</label>
+          <select
+            id="symbol"
+            value={selectedSymbol}
+            onChange={(event) => onSymbolChange(event.target.value)}
+          >
+            {stocks.map((stock) => (
+              <option key={stock.symbol} value={stock.symbol}>
+                {stock.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="market-info">
+          <div>
+            <strong>Last price:</strong>{' '}
+            {Number.isFinite(marketState.price)
+              ? currencyFormatter.format(marketState.price)
+              : marketState.loading
+                ? 'Loading…'
+                : 'Unavailable'}
+          </div>
+          {latestQuoteDescription ? (
+            <div className="market-subtext">{latestQuoteDescription}</div>
+          ) : null}
+        </div>
+        {marketState.error ? (
+          <p className="badge" role="alert">
+            Could not load quotes: {marketState.error}
+          </p>
+        ) : null}
+        <div className="button-row" style={{ marginTop: '0.75rem' }}>
+          <button className="button" type="button" onClick={onRefreshMarketData}>
+            Refresh quotes
+          </button>
+          <button
+            className="button"
+            type="button"
+            onClick={onApplyLivePrice}
+            disabled={disableQuoteActions}
+          >
+            Set scenario to live price
+          </button>
+          <button
+            className="button"
+            type="button"
+            onClick={onApplyLiveBasis}
+            disabled={disableQuoteActions}
+          >
+            Set basis to live price
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="section-title">Live Put Quotes</h3>
+        {optionState.loading ? (
+          <p style={{ color: 'var(--text-muted)' }}>Loading option chain…</p>
+        ) : null}
+        {optionState.error ? (
+          <p className="badge" role="alert">
+            {optionState.error}
+          </p>
+        ) : null}
+        {!optionState.loading && !optionState.error && optionSuggestions.length === 0 ? (
+          <p style={{ color: 'var(--text-muted)' }}>
+            No puts returned for the selected symbol. Enter premiums manually.
+          </p>
+        ) : null}
+        <div className="panels quote-grid">
+          {optionSuggestions.map((quote) => (
+            <div className="quote-card" key={quote.id}>
+              <div className="quote-header">
+                <strong>{currencyFormatter.format(quote.strike)} strike</strong>
+                <span>{quote.expirationLabel}</span>
+              </div>
+              <div className="quote-body">{describeOptionQuote(quote)}</div>
+              <button type="button" className="button" onClick={() => onApplyPutQuote(quote)}>
+                Use this quote
+              </button>
+            </div>
+          ))}
+        </div>
+        {optionState.lastUpdated ? (
+          <p className="market-subtext" style={{ marginTop: '0.5rem' }}>
+            Option chain refreshed {formatDistanceToNow(optionState.lastUpdated, { addSuffix: true })}
+          </p>
+        ) : null}
+      </section>
 
       <section>
         <h3 className="section-title">Stock Position</h3>
@@ -102,10 +225,7 @@ export function InputPanel({
             step={0.01}
             value={inputs.sharePurchasePrice}
             onChange={(event) =>
-              onNumberChange(
-                'sharePurchasePrice',
-                Number(event.target.value) || 0
-              )
+              onNumberChange('sharePurchasePrice', Number(event.target.value) || 0)
             }
           />
         </div>
@@ -119,8 +239,8 @@ export function InputPanel({
             <input
               id="putStrike"
               type="range"
-              min={50}
-              max={400}
+              min={20}
+              max={600}
               step={1}
               value={inputs.putStrike}
               onChange={(event) =>
@@ -231,13 +351,13 @@ export function InputPanel({
       <section>
         <h3 className="section-title">Scenario</h3>
         <div className="input-group">
-          <label htmlFor="futureStockPrice">Future NVDA price</label>
+          <label htmlFor="futureStockPrice">Future price</label>
           <div className="slider-row">
             <input
               id="futureStockPrice"
               type="range"
               min={30}
-              max={500}
+              max={600}
               step={1}
               value={inputs.futureStockPrice}
               onChange={(event) =>
@@ -281,13 +401,41 @@ export function InputPanel({
             onChange={(event) => onTextChange('analysisDate', event.target.value)}
           />
         </div>
+        <div className="input-group">
+          <label htmlFor="taxRate">Effective tax rate</label>
+          <div className="control-grid">
+            <input
+              id="taxRate"
+              type="number"
+              min={0}
+              max={100}
+              step={0.1}
+              value={Number((inputs.taxRate * 100).toFixed(1))}
+              onChange={(event) =>
+                onNumberChange('taxRate', Math.min(100, Math.max(0, Number(event.target.value))) / 100)
+              }
+            />
+            <select
+              aria-label="Tax rate presets"
+              value={selectValue(inputs.taxRate, taxRatePresets)}
+              onChange={(event) => onNumberChange('taxRate', Number(event.target.value))}
+            >
+              <option value="">Tax presets…</option>
+              {taxRatePresets.map((rate) => (
+                <option key={rate} value={rate}>
+                  {percentFormatter.format(rate)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </section>
 
       <section>
         <h3 className="section-title">Future Price Checkpoints</h3>
         <p style={{ marginTop: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Model additional outcomes beyond the default table. Enter prices to
-          instantly see their hedged impact.
+          Model additional outcomes beyond the default table. Enter prices to instantly see their hedged
+          impact.
         </p>
         <div className="panels">
           {scenarioCheckpoints.map((checkpoint) => (
@@ -334,25 +482,55 @@ InputPanel.propTypes = {
     premiumPerShare: PropTypes.number.isRequired,
     futureStockPrice: PropTypes.number.isRequired,
     analysisDate: PropTypes.string.isRequired,
+    taxRate: PropTypes.number.isRequired,
   }).isRequired,
+  stocks: PropTypes.arrayOf(
+    PropTypes.shape({
+      symbol: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  selectedSymbol: PropTypes.string.isRequired,
+  marketState: PropTypes.shape({
+    price: PropTypes.number,
+    asOf: PropTypes.instanceOf(Date),
+    loading: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+  }).isRequired,
+  optionState: PropTypes.shape({
+    quotes: PropTypes.array.isRequired,
+    loading: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+    lastUpdated: PropTypes.instanceOf(Date),
+  }).isRequired,
+  optionSuggestions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      strike: PropTypes.number.isRequired,
+      premium: PropTypes.number.isRequired,
+      bid: PropTypes.number,
+      ask: PropTypes.number,
+      lastPrice: PropTypes.number,
+      expirationLabel: PropTypes.string.isRequired,
+      expirationDate: PropTypes.instanceOf(Date),
+    })
+  ).isRequired,
   onNumberChange: PropTypes.func.isRequired,
   onTextChange: PropTypes.func.isRequired,
   onExpirationChange: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
-  onUseTodayPrice: PropTypes.func.isRequired,
+  onRefreshMarketData: PropTypes.func.isRequired,
+  onApplyLivePrice: PropTypes.func.isRequired,
+  onApplyLiveBasis: PropTypes.func.isRequired,
   onMaxProtection: PropTypes.func.isRequired,
-  isFetchingPrice: PropTypes.bool.isRequired,
-  fetchError: PropTypes.string,
+  onSymbolChange: PropTypes.func.isRequired,
+  onApplyPutQuote: PropTypes.func.isRequired,
   scenarioCheckpoints: PropTypes.arrayOf(
     PropTypes.shape({ id: PropTypes.number.isRequired, price: PropTypes.number.isRequired })
   ).isRequired,
   onAddCheckpoint: PropTypes.func.isRequired,
   onUpdateCheckpoint: PropTypes.func.isRequired,
   onRemoveCheckpoint: PropTypes.func.isRequired,
-};
-
-InputPanel.defaultProps = {
-  fetchError: null,
 };
 
 export default InputPanel;

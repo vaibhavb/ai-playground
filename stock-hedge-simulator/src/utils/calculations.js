@@ -5,6 +5,12 @@ const toFiniteNumber = (value, fallback = 0) => {
 
 export const BASE_SCENARIO_PRICES = Object.freeze([200, 180, 150, 140, 100]);
 
+const clampRate = (value) => {
+  const number = toFiniteNumber(value, 0);
+  if (!Number.isFinite(number)) return 0;
+  return Math.max(0, Math.min(1, number));
+};
+
 export function computePutCost(premiumPerShare, contractsBought) {
   const premium = toFiniteNumber(premiumPerShare);
   const contracts = toFiniteNumber(contractsBought);
@@ -30,6 +36,17 @@ export function computeNetResult(price, params, overrides = {}) {
   const stockPL = computeStockPL(price, params.sharePurchasePrice, params.sharesOwned);
   const putValue = computePutValue(params.putStrike, price, params.contractsBought);
   return stockPL + putValue - putCost;
+}
+
+export function computeTaxImpact(netResult, taxRate) {
+  const net = toFiniteNumber(netResult);
+  const rate = clampRate(taxRate);
+  return net * rate;
+}
+
+export function computeAfterTaxNet(netResult, taxRate) {
+  const net = toFiniteNumber(netResult);
+  return net - computeTaxImpact(net, taxRate);
 }
 
 export function computeBreakEvenPrice(sharePurchasePrice, sharesOwned, putCost) {
@@ -79,7 +96,12 @@ const extractCheckpointPrices = (checkpoints = []) =>
     .map((checkpoint) => toFiniteNumber(checkpoint?.price, null))
     .filter((value) => value !== null);
 
-export function generateScenarioRows(params, checkpoints = [], basePrices = BASE_SCENARIO_PRICES, overrides = {}) {
+export function generateScenarioRows(
+  params,
+  checkpoints = [],
+  basePrices = BASE_SCENARIO_PRICES,
+  overrides = {}
+) {
   const putCost = overrides.putCost ?? computePutCost(params.premiumPerShare, params.contractsBought);
   const prices = new Set(basePrices);
   extractCheckpointPrices(checkpoints).forEach((price) => {
@@ -87,12 +109,18 @@ export function generateScenarioRows(params, checkpoints = [], basePrices = BASE
   });
   return Array.from(prices)
     .sort((a, b) => b - a)
-    .map((price) => ({
-      price,
-      stockPL: computeStockPL(price, params.sharePurchasePrice, params.sharesOwned),
-      putValue: computePutValue(params.putStrike, price, params.contractsBought),
-      netResult: computeNetResult(price, params, { putCost }),
-    }));
+    .map((price) => {
+      const netResult = computeNetResult(price, params, { putCost });
+      const taxImpact = computeTaxImpact(netResult, params.taxRate);
+      return {
+        price,
+        stockPL: computeStockPL(price, params.sharePurchasePrice, params.sharesOwned),
+        putValue: computePutValue(params.putStrike, price, params.contractsBought),
+        netResult,
+        taxImpact,
+        netAfterTax: computeAfterTaxNet(netResult, params.taxRate),
+      };
+    });
 }
 
 export function generateChartData(params, checkpoints = [], options = {}, overrides = {}) {
@@ -114,10 +142,12 @@ export function generateChartData(params, checkpoints = [], options = {}, overri
 
   return Array.from({ length: safeSteps + 1 }, (_, index) => {
     const price = Math.round((minPrice + increment * index) * 100) / 100;
+    const netResult = computeNetResult(price, params, { putCost });
     return {
       price,
-      hedged: computeNetResult(price, params, { putCost }),
+      hedged: netResult,
       unhedged: computeStockPL(price, params.sharePurchasePrice, params.sharesOwned),
+      hedgedAfterTax: computeAfterTaxNet(netResult, params.taxRate),
     };
   });
 }
@@ -128,6 +158,8 @@ export default {
   computeStockPL,
   computePutValue,
   computeNetResult,
+  computeTaxImpact,
+  computeAfterTaxNet,
   computeBreakEvenPrice,
   computeHedgeEffectiveness,
   computeWorstCaseLoss,
