@@ -37,12 +37,7 @@ jobs:
           set -euo pipefail
           rm -rf _site
           mkdir -p _site
-          mapfile -t vite_apps < <(
-            find . -maxdepth 2 -type f -name "vite.config.*" -not -path "./node_modules/*" -exec dirname {} \;
-            | sed 's|^\./||'
-            | sort
-            | uniq
-          )
+          mapfile -t vite_apps < <(find . -maxdepth 2 -type f -name "vite.config.*" -not -path "./node_modules/*" -exec dirname {} \; | sed 's|^\./||' | sort | uniq)
 
           repo_name="${GITHUB_REPOSITORY##*/}"
           if [ -z "$repo_name" ] || [ "$repo_name" = "$GITHUB_REPOSITORY" ]; then
