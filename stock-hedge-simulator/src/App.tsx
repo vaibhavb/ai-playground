@@ -181,42 +181,78 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container space-y-8 py-8">
-        <header className="space-y-2 text-center">
-          <motion.h1
-            className="text-3xl font-semibold tracking-tight"
-            initial={{ opacity: 0, y: -8 }}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Atmospheric corner glow */}
+      <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+      <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-sky-400/5 rounded-full blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
+
+      <main className="container relative z-10 py-12 px-6 max-w-[1600px]">
+        {/* Terminal-style header */}
+        <header className="mb-12 border-b border-cyan-500/20 pb-8">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-end justify-between"
           >
-            Stock Hedge Simulator
-          </motion.h1>
-          <p className="text-sm text-muted-foreground/80">
-            Model protective put overlays with live pricing, option-chain shortcuts, and tax-aware analytics across every scenario.
-          </p>
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgb(6,182,212)]" />
+                <span className="text-xs uppercase tracking-[0.2em] text-cyan-400/70 font-light">
+                  TERMINAL v2.0
+                </span>
+              </div>
+              <h1 className="text-6xl font-bold tracking-tight text-slate-50 mb-2">
+                Hedge Simulator
+              </h1>
+              <p className="text-sm text-slate-400 max-w-2xl font-light tracking-wide">
+                Model protective put overlays with live pricing, option-chain shortcuts, and tax-aware analytics across every scenario.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-6 text-xs text-slate-500 font-light">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>LIVE</span>
+              </div>
+              <div className="h-8 w-px bg-slate-700/50" />
+              <div>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}</div>
+            </div>
+          </motion.div>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-[340px_1fr]">
-          <InputPanel
-            state={state}
-            presets={SYMBOL_PRESETS}
-            quote={quote}
-            quoteLoading={quoteLoading}
-            quoteError={quoteError}
-            optionLoading={optionLoading}
-            onUpdate={updateState}
-            onReset={handleReset}
-            onUseLivePrice={handleUseLivePrice}
-            onMaxProtection={handleMaxProtection}
-            onAddCheckpoint={handleAddCheckpoint}
-            onUpdateCheckpoint={handleUpdateCheckpoint}
-            onRemoveCheckpoint={handleRemoveCheckpoint}
-            onRefreshQuote={refreshQuote}
-            onRefreshOptions={refreshOptions}
-          />
+        {/* Main grid layout */}
+        <div className="grid gap-8 lg:grid-cols-[380px_1fr]">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <InputPanel
+              state={state}
+              presets={SYMBOL_PRESETS}
+              quote={quote}
+              quoteLoading={quoteLoading}
+              quoteError={quoteError}
+              optionLoading={optionLoading}
+              onUpdate={updateState}
+              onReset={handleReset}
+              onUseLivePrice={handleUseLivePrice}
+              onMaxProtection={handleMaxProtection}
+              onAddCheckpoint={handleAddCheckpoint}
+              onUpdateCheckpoint={handleUpdateCheckpoint}
+              onRemoveCheckpoint={handleRemoveCheckpoint}
+              onRefreshQuote={refreshQuote}
+              onRefreshOptions={refreshOptions}
+            />
+          </motion.div>
 
-          <div className="space-y-6">
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <ResultsPanel
               futurePrice={state.futureStockPrice}
               stockPL={stockPL}
@@ -243,7 +279,7 @@ export default function App() {
             <ScenarioChart data={chartData} putStrike={state.putStrike} breakEven={breakEven} />
 
             <ScenarioTable rows={scenarioRows} />
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>

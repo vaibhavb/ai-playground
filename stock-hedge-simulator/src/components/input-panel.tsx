@@ -84,13 +84,16 @@ export function InputPanel({
   }, [state.sharePurchasePrice, state.putStrike]);
 
   return (
-    <div className="flex flex-col gap-5">
-      <Card className="border-border/60">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Wallet className="h-4 w-4 text-accent" /> Symbol & Tax setup
+    <div className="flex flex-col gap-5 sticky top-6">
+      <Card className="border-slate-700/60 bg-slate-950/60 backdrop-blur-sm shadow-2xl shadow-cyan-500/5">
+        <CardHeader className="pb-4 border-b border-slate-800/50">
+          <CardTitle className="flex items-center gap-3 text-base font-light uppercase tracking-[0.15em]">
+            <Wallet className="h-4 w-4 text-cyan-400" />
+            <span className="text-slate-300">Symbol & Tax</span>
           </CardTitle>
-          <CardDescription>Pick a ticker, sync live data, and set your tax rate assumptions.</CardDescription>
+          <CardDescription className="text-xs text-slate-500 font-light mt-2">
+            Pick a ticker, sync live data, and set your tax rate assumptions.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3">
@@ -203,12 +206,15 @@ export function InputPanel({
         </CardContent>
       </Card>
 
-      <Card className="border-border/60">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldCheck className="h-4 w-4 text-accent" /> Position controls
+      <Card className="border-slate-700/60 bg-slate-950/60 backdrop-blur-sm shadow-2xl shadow-cyan-500/5">
+        <CardHeader className="pb-4 border-b border-slate-800/50">
+          <CardTitle className="flex items-center gap-3 text-base font-light uppercase tracking-[0.15em]">
+            <ShieldCheck className="h-4 w-4 text-cyan-400" />
+            <span className="text-slate-300">Position Controls</span>
           </CardTitle>
-          <CardDescription>Adjust your stock exposure and protective put contracts.</CardDescription>
+          <CardDescription className="text-xs text-slate-500 font-light mt-2">
+            Adjust your stock exposure and protective put contracts.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -309,12 +315,15 @@ export function InputPanel({
         </CardContent>
       </Card>
 
-      <Card className="border-border/60">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Thermometer className="h-4 w-4 text-accent" /> Scenario planning
+      <Card className="border-slate-700/60 bg-slate-950/60 backdrop-blur-sm shadow-2xl shadow-cyan-500/5">
+        <CardHeader className="pb-4 border-b border-slate-800/50">
+          <CardTitle className="flex items-center gap-3 text-base font-light uppercase tracking-[0.15em]">
+            <Thermometer className="h-4 w-4 text-cyan-400" />
+            <span className="text-slate-300">Scenario Planning</span>
           </CardTitle>
-          <CardDescription>Project future stock prices and track custom checkpoints.</CardDescription>
+          <CardDescription className="text-xs text-slate-500 font-light mt-2">
+            Project future stock prices and track custom checkpoints.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-3">

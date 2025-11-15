@@ -41,59 +41,79 @@ export function ResultsPanel({
 
   return (
     <div className="space-y-6">
-      <Card className="border-border/70">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center justify-between text-base">
-            Hedge outcome at ${futurePrice.toFixed(2)}
-            <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" disabled>
-              Tax-adjusted view
-            </Button>
-          </CardTitle>
-          <CardDescription>
+      {/* Hero metrics card */}
+      <Card className="border-slate-700/60 bg-gradient-to-br from-slate-950/80 to-slate-900/60 backdrop-blur-sm shadow-2xl shadow-cyan-500/10 overflow-hidden relative">
+        {/* Subtle corner accent */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/5 rounded-full blur-3xl" />
+
+        <CardHeader className="pb-6 border-b border-slate-800/50 relative z-10">
+          <div className="flex items-center justify-between">
+            <CardTitle className="font-light uppercase tracking-[0.15em] text-base text-slate-300">
+              Hedge Outcome
+            </CardTitle>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="font-mono">@</span>
+              <span className="font-semibold text-cyan-400">${futurePrice.toFixed(2)}</span>
+            </div>
+          </div>
+          <CardDescription className="text-xs text-slate-500 font-light mt-2">
             Gross and after-tax P/L snapshots update instantly as you adjust the scenario dials.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
+
+        <CardContent className="grid gap-6 md:grid-cols-2 pt-6 relative z-10">
+          {/* Net Result - Primary metric */}
           <motion.div
             key={netResult}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 120, damping: 16 }}
-            className="rounded-2xl border border-border/60 bg-card/60 p-5"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className="relative group"
           >
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>Net result</span>
-              {netIsPositive ? (
-                <ArrowUpRight className="h-4 w-4 text-positive" />
-              ) : (
-                <ArrowDownRight className="h-4 w-4 text-negative" />
-              )}
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative border border-slate-800/60 bg-slate-950/40 backdrop-blur-sm rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-light">Net Result</span>
+                {netIsPositive ? (
+                  <ArrowUpRight className="h-5 w-5 text-emerald-400" />
+                ) : (
+                  <ArrowDownRight className="h-5 w-5 text-red-400" />
+                )}
+              </div>
+              <div className={`text-4xl font-bold tracking-tight mb-3 tabular-nums animate-count ${
+                netIsPositive ? 'text-emerald-400' : 'text-red-400'
+              }`}>
+                {formatCurrency(netResult)}
+              </div>
+              <div className="h-px bg-gradient-to-r from-slate-700/50 via-slate-600/50 to-transparent mb-3" />
+              <p className="text-[11px] text-slate-500 font-light leading-relaxed">
+                Includes stock P/L plus put payoff net of premium cost.
+              </p>
             </div>
-            <div className="mt-2 text-3xl font-semibold tracking-tight">
-              {formatCurrency(netResult)}
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground/80">
-              Includes stock P/L plus put payoff net of premium cost.
-            </p>
           </motion.div>
 
+          {/* After-tax Net - Secondary metric */}
           <motion.div
             key={netAfterTax}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 120, damping: 16, delay: 0.05 }}
-            className="rounded-2xl border border-border/60 bg-card/60 p-5"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.05 }}
+            className="relative group"
           >
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>After-tax net</span>
-              <PiggyBank className="h-4 w-4 text-accent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative border border-slate-800/60 bg-slate-950/40 backdrop-blur-sm rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-light">After-Tax Net</span>
+                <PiggyBank className="h-5 w-5 text-cyan-400" />
+              </div>
+              <div className="text-4xl font-bold tracking-tight text-slate-200 mb-3 tabular-nums animate-count">
+                {formatCurrency(netAfterTax)}
+              </div>
+              <div className="h-px bg-gradient-to-r from-slate-700/50 via-slate-600/50 to-transparent mb-3" />
+              <p className="text-[11px] text-slate-500 font-light leading-relaxed">
+                Tax impact of {formatCurrency(taxImpact)} applied using your marginal rate.
+              </p>
             </div>
-            <div className="mt-2 text-3xl font-semibold tracking-tight">
-              {formatCurrency(netAfterTax)}
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground/80">
-              Tax impact of {formatCurrency(taxImpact)} applied using your marginal rate.
-            </p>
           </motion.div>
         </CardContent>
       </Card>
@@ -154,25 +174,41 @@ type MetricCardProps = {
   tone: 'positive' | 'negative' | 'neutral';
 };
 
-const toneClasses: Record<MetricCardProps['tone'], string> = {
-  positive: 'border-positive/30 bg-positive/10 text-positive',
-  negative: 'border-negative/30 bg-negative/10 text-negative',
-  neutral: 'border-border/60 bg-card/60 text-foreground',
+const toneStyles: Record<MetricCardProps['tone'], { border: string; bg: string; text: string; glow?: string }> = {
+  positive: {
+    border: 'border-emerald-500/20',
+    bg: 'bg-emerald-950/30',
+    text: 'text-emerald-400',
+    glow: 'shadow-emerald-500/10',
+  },
+  negative: {
+    border: 'border-red-500/20',
+    bg: 'bg-red-950/30',
+    text: 'text-red-400',
+    glow: 'shadow-red-500/10',
+  },
+  neutral: {
+    border: 'border-slate-700/50',
+    bg: 'bg-slate-950/50',
+    text: 'text-slate-300',
+  },
 };
 
 function MetricCard({ icon, label, value, description, tone }: MetricCardProps) {
+  const styles = toneStyles[tone];
+
   return (
-    <Card className={tone === 'neutral' ? 'border-border/70 bg-card/70' : toneClasses[tone]}>
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          {icon}
-          <span className="uppercase tracking-wide">{label}</span>
+    <Card className={`${styles.border} ${styles.bg} backdrop-blur-sm shadow-xl ${styles.glow || ''} group hover:scale-[1.02] transition-all duration-300`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className={`${styles.text}`}>{icon}</div>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-light">{label}</span>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="text-2xl font-semibold">{value}</div>
-        <Separator className="my-3 border-border/40" />
-        <p className="text-xs text-muted-foreground/80">{description}</p>
+        <div className={`text-2xl font-bold tabular-nums ${styles.text} mb-3`}>{value}</div>
+        <div className="h-px bg-gradient-to-r from-slate-700/40 via-slate-600/30 to-transparent mb-3" />
+        <p className="text-[11px] text-slate-500 font-light leading-relaxed">{description}</p>
       </CardContent>
     </Card>
   );

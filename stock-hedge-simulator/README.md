@@ -9,6 +9,24 @@ Create an experiment titled **Stock Hedge Simulator** that delivers a React play
 - Shared calculation engine that matches the provided hedging equations and feeds every visual with stock, option, tax, and net metrics in real time.
 
 ## Latest Enhancements
+
+### UI Redesign: "Financial Terminal Noir" (Nov 2025)
+Completely rebuilt the interface with a bold, distinctive aesthetic inspired by Bloomberg terminals and modernist financial design:
+
+- **Typography System:** Playfair Display (serif) for editorial headlines paired with JetBrains Mono (monospace) for data precision
+- **Dark Brutalist Foundation:** Deep black backgrounds (rgb(8,8,12)) with electric cyan accents and strategic emerald/crimson for profit/loss states
+- **Atmospheric Effects:**
+  - Subtle grid overlay background texture
+  - Radial gradient glows from corners
+  - SVG noise texture for depth
+  - Backdrop blur and layered transparency
+- **Kinetic Data Visualization:** Smooth morphing number animations with spring physics, hover-triggered glow effects, and tabular number spacing
+- **Premium Card Design:** Glass-morphic cards with gradient borders, inner accent glows, and micro-interaction scale transforms
+- **Terminal-Style Header:** Status indicator with pulsing cyan dot, version badge, live data timestamp, and 6xl Playfair headline
+
+The redesign transforms generic UI into a sophisticated, data-dense terminal that feels purpose-built for financial analytics.
+
+### Core Features
 - **Multi-symbol hedging with live quotes:** Quick presets cover NVDA, BRK.B, ASML, and MSFT while custom tickers auto-normalise for Yahoo Finance fetches; a refresh button pulls the latest price and snaps cost basis in one click.
 - **Options Profit Calculator integration:** The app fans out across several CORS-friendly mirrors of the OptionsProfitCalculator API so protective put chains can be searched, filtered by expiration, and applied directly to the simulator.
 - **Tax-aware analytics:** Gross, tax impact, and after-tax nets appear together across summary cards, scenario tables, and the Recharts visualisation.
