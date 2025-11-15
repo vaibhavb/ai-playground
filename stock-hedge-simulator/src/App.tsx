@@ -274,6 +274,7 @@ export default function App() {
               onApply={handleApplyOption}
               isLoading={optionLoading}
               error={optionError}
+              referencePrice={quote?.price ?? state.futureStockPrice ?? null}
             />
 
             <ScenarioChart data={chartData} putStrike={state.putStrike} breakEven={breakEven} />

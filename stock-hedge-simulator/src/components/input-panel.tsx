@@ -112,7 +112,7 @@ export function InputPanel({
                 }
               }}
             >
-              <SelectTrigger id="symbol">
+              <SelectTrigger id="symbol" className="bg-white">
                 <SelectValue placeholder="Choose a ticker" />
               </SelectTrigger>
               <SelectContent>
@@ -144,7 +144,7 @@ export function InputPanel({
           </div>
 
           <div className="grid gap-2">
-            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/70">
+            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/80">
               <span>Latest price</span>
               <div className="flex items-center gap-2">
                 {quote && <span className="font-semibold text-foreground">${quote.price.toFixed(2)}</span>}
@@ -327,7 +327,7 @@ export function InputPanel({
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/70">
+            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground/80">
               <span>Future price</span>
               <span className="text-sm font-semibold text-foreground">${state.futureStockPrice.toFixed(2)}</span>
             </div>
