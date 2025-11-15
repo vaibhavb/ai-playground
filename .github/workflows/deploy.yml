@@ -71,6 +71,8 @@ jobs:
           # Copy static HTML directories (non-Vite projects)
           for dir in */; do
             dir_name="${dir%/}"
+            [ "$dir_name" = "_site" ] && continue
+            [ "$dir_name" = "node_modules" ] && continue
             if [ -f "${dir_name}/index.html" ] && [ ! -f "${dir_name}/vite.config.ts" ] && [ ! -f "${dir_name}/vite.config.js" ]; then
               echo "📄 Copying static directory: ${dir_name}"
               mkdir -p "_site/${dir_name}"
