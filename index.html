@@ -67,7 +67,9 @@
             throw new Error('marked.js library failed to load');
           }
 
-          const response = await fetch('README.md');
+          const response = await fetch('README.md', {
+            cache: 'default'
+          });
           if (!response.ok) {
             throw new Error('Unable to load README.md');
           }
